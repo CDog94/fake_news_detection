@@ -1,0 +1,10 @@
+# dataset configurations
+dataset:
+    positive: "True.csv"
+    negative: "Fake.csv"
+    embeddings_name: "multi-qa-MiniLM-L6-cos-v1"
+    load_dataset: 1
+    topic_modeller: 0
+model:
+    hidden_size: 128
+    input_size: 384

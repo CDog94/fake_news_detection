@@ -1,0 +1,4 @@
+bertopic
+nltk
+pytorch_lightning
+seaborn
