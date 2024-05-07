@@ -86,13 +86,13 @@ The first step is to understand the features associated with both Fake.csv and T
 
 During pre-processing, it was noted that there are entries with NaN, these have been excluded from the dataset with the following statistics updated to include the removal of the NaN entries.
 
-<img src="/fake_news_detection/results/exploratory_data_analysis/summary.png"> 
+<img src="results/exploratory_data_analysis/summary.png"> 
 
 Figure 1: Data distributions between fake and real articles after removing NaN entries
 
 There is a huge imbalance within the dataset which must be accounted for during pre-processing/model building. A further step is to understand the sample sizes of both fake and real articles within the subject category, this is presented below.
 
-<img src="/fake_news_detection/results/exploratory_data_analysis/category_breakdown.png"> 
+<img src="results/exploratory_data_analysis/category_breakdown.png"> 
 
 Figure 2: Data distributions between fake and real articles within each subject. 
 
@@ -100,20 +100,20 @@ Figure 2 highlights there aren’t any true articles for the category ‘News’
 
 The next step looks at understanding the date distributions of articles. If fake articles are published decades apart from true articles the underlying grammar / vocabulary may have changed, and such the model may simply learn to differentiate between vocabulary rather than any salient features associated with fake news. Another challenge is also called concept drift, for example something that was fake news decades ago, may not be now and vice versa.
 
-<img src="/fake_news_detection/results/exploratory_data_analysis/monthly_distribution_2016.png"> 
-<img src="/fake_news_detection/results/exploratory_data_analysis/monthly_distribution_2017.png">
+<img src="results/exploratory_data_analysis/monthly_distribution_2016.png"> 
+<img src="results/exploratory_data_analysis/monthly_distribution_2017.png">
 
 Figure 3 highlights that data falls between 2016-17 with fake news articles starting in October 2016 and slowly decreasing in 2017. Therefore, I do not expect any type of data or concept drift. However, further analysis is conducted in next steps.
 
 Finally, the next step is to understand the topic breakdown of the dataset. To achieve this, I used BERTopic, a pretrained BERT transformer and c-TF-IDF (Contextual Term Frequency-Inverse Document Frequency) to extract topics. 
 
-<img src="/fake_news_detection/results/exploratory_data_analysis/dataset_themes.png">
+<img src="results/exploratory_data_analysis/dataset_themes.png">
 
 Figure 4: Themes within the dataset
 
 As seen from figure 4, there are multiple themes within the dataset such as Brexit, Iran, Tax, Turkey, Spain and so on. The most interesting insight will come from understanding the topic distributions between Fake and True news articles. 
 
-<img src="/fake_news_detection/results/exploratory_data_analysis/overlap.png">
+<img src="results/exploratory_data_analysis/overlap.png">
 
 Figure 5: Intersection of topics between True and Fake articles
 
@@ -154,15 +154,15 @@ For demonstration purposes, I have opted to code up a simple linear neural netwo
 
 Preface: I would usually go to further extremes to investigate model performance. I.e. performance within subsets, nested CV, CIs on performance metrics. But due to time constraints I did not.
 
-<img src="/fake_news_detection/results/build_evaluate_classifier/roc_curve.png">
+<img src="results/build_evaluate_classifier/roc_curve.png">
 
 Figure 6: Confusion matrices
 
-<img src="/fake_news_detection/results/build_evaluate_classifier/pr_curve.png">
+<img src="results/build_evaluate_classifier/pr_curve.png">
 
 Figure 7: PR curves
 
-<img src="/fake_news_detection/results/build_evaluate_classifier/roc_curve.png">
+<img src="results/build_evaluate_classifier/roc_curve.png">
 
 Figure 8: ROC curve
 
