@@ -158,11 +158,11 @@ Preface: I would usually go to further extremes to investigate model performance
 
 Figure 6: Confusion matrices
 
-<img src="results/build_evaluate_classifier/pr_curve.png">
+<img src="results/build_evaluate_classifier/confusion_matrix.png">
 
 Figure 7: PR curves
 
-<img src="results/build_evaluate_classifier/roc_curve.png">
+<img src="results/build_evaluate_classifier/pr_curve.png">
 
 Figure 8: ROC curve
 
