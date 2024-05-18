@@ -1,5 +1,4 @@
 import os
-from tqdm import tqdm
 import pandas as pd
 import joblib
 from torch.utils.data import Dataset, DataLoader
@@ -8,7 +7,7 @@ from sentence_transformers import SentenceTransformer
 import torch
 
 
-def get_dataset(args: dict) -> dict:
+def get_dataset(args: dict) -> list:
     """
     A function which gets the dataset, either loads it or creates it from scratch.
     :param args: a set of arguments pertaining to the dataset
@@ -37,10 +36,10 @@ def get_dataset(args: dict) -> dict:
         dataset = dataset.drop(columns=['title', 'subject', 'date'])
 
         # get sentence embeddings
-        dataset = get_sentence_embeddings(args=args['dataset'], dataset=dataset, feature='text')
+        dataset = get_sentence_embeddings(args=args, dataset=dataset, feature='text')
 
         # split the dataset
-        dataset = utils.split_dataset(dataset=dataset)
+        dataset = utils.split_dataset_nested_cv(dataset=dataset)
 
         # convert to torch tensors
         dataset = prepare_dataset_for_model(dataset=dataset)
@@ -62,19 +61,28 @@ def get_sentence_embeddings(args: dict, dataset: pd.DataFrame, feature: str) -> 
     sentences = [' '.join(s) for s in dataset[feature].tolist()]
 
     with torch.no_grad():
-        model = SentenceTransformer(args['embeddings_name'])
-        for idx, sentence in enumerate(tqdm(sentences, desc='Generating embeddings')):
-            sentence_embeddings = model.encode(' '.join(sentence))
-            sentences[idx] = sentence_embeddings
+        model = SentenceTransformer(args['dataset']['embeddings_name'], device=args['device'])
+        embeddings = model.encode(sentences, show_progress_bar=True)
 
-    dataset[feature] = sentences
+    dataset[feature] = embeddings.tolist()
     return dataset
 
 
-def prepare_dataset_for_model(dataset: dict) -> dict:
+def prepare_dataset_for_model(dataset: list) -> list:
     """
     Prepares a dataset for a Pytorch model
     :param dataset: dictionary of data splits
+    :return: a fully prepared dataset
+    """
+    for k, split in enumerate(dataset):
+        dataset[k] = to_pytorch_dataset(dataset=split)
+    return dataset
+
+
+def to_pytorch_dataset(dataset: dict) -> dict:
+    """
+    Prepare a dataset for a Pytorch model
+    :param dataset: a dictionary of data splits
     :return: a fully prepared dataset
     """
     train, test, valid = dataset['training'], dataset['testing'], dataset['validating']

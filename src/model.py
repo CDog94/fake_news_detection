@@ -50,29 +50,32 @@ class FeedForwardClassifier(pl.LightningModule):
         return optim.Adam(self.parameters(), lr=0.001)
 
 
-def train_test_model(args: dict, dataset: dict) -> np.array:
+def train_test_model(args: dict, dataset: list) -> np.array:
     """
     Train and test the model
     :param args: arguments for training/model
     :param dataset: dataset to be usd for training/testing
     :return: predictions from the model
     """
-    model = FeedForwardClassifier(args['model']['input_size'], args['model']['hidden_size'])
+    probabilities = {}
+    for k, fold in enumerate(dataset):
+        model = FeedForwardClassifier(args['model']['input_size'], args['model']['hidden_size'])
 
-    # Initialize PyTorch Lightning trainer
-    trainer = pl.Trainer(max_epochs=15)
+        # Initialize PyTorch Lightning trainer
+        trainer = pl.Trainer(max_epochs=15, accelerator=args['device'].type)
 
-    # Train the model using the provided data loaders
-    trainer.fit(model, train_dataloaders=dataset['train'], val_dataloaders=dataset['valid'])
+        # Train the model using the provided data loaders
+        trainer.fit(model, train_dataloaders=fold['train'], val_dataloaders=fold['valid'])
 
-    # Test the trained model using the test data loader
-    trainer.test(model, dataloaders=dataset['test'])
+        # Test the trained model using the test data loader
+        trainer.test(model, dataloaders=fold['test'])
 
-    # Save the trained model
-    save_dir = os.path.join(args['src_dir'], 'models', 'model.pt')
-    trainer.save_checkpoint(save_dir)
+        # Save the trained model
+        save_dir = os.path.join(args['src_dir'], 'models', f'{k}_model.pt')
+        trainer.save_checkpoint(save_dir)
 
-    # return the predicted probabilities
-    probabilities = trainer.predict(model, dataloaders=dataset['test'])
+        # return the predicted probabilities
+        output = trainer.predict(model, dataloaders=fold['test'])
+        probabilities[k] = output
 
     return probabilities

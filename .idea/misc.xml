@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.12 (fake_news_detection)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (fake_news_detection)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (machine-learning-engineering-for-production-public)" project-jdk-type="Python SDK" />
 </project>
