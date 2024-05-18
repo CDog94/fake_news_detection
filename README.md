@@ -64,7 +64,7 @@ Approximate running times:
   - Approximately 15 minuets with topic modelling (BERT-based).
 - "python3 build_eval_clf.py”: 
   - Approximately 1.5 mins with pre-processed dataset. 
-  - Approximately 11.5 mins including pre-processing of sentence embeddings (Transformer-based).
+  - Approximately 2-3 mins (down from 15) including pre-processing of sentence embeddings (Transformer-based).
 - “python3 inference.py”: 
   - Approximately 5-10 seconds to load into memory. Inference time is approximately 70 milliseconds.
 
