@@ -6,6 +6,8 @@ In this project, I have been tasked with building a classification algorithm to 
 
 ### Project Setup
 
+Data can be downloaded [using this link](https://1drv.ms/f/s!Aht2ewWAV68Z6jVQ4fEESXaI6C8-?e=B2Zicz). Place True.csv and Fake.csv in the /data/raw folder.
+
 The project is setup in the following structure:
 
 ```
