@@ -14,12 +14,8 @@ def run_pipeline(args: dict):
     :param args: a dictionary of arguments.
     :return: Nothing.
     """
-
     dataset = da.get_dataset(args=args)
     predicted_proba = m.train_test_model(args=args, dataset=dataset)
-
-    import pdb; pdb.set_trace()
-
     e.evaluate_model(
         predictions=predicted_proba,
         dataset=dataset,

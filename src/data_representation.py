@@ -1,4 +1,5 @@
 import os
+from tqdm import tqdm
 import pandas as pd
 import joblib
 from torch.utils.data import Dataset, DataLoader
@@ -38,8 +39,11 @@ def get_dataset(args: dict) -> list:
         # get sentence embeddings
         dataset = get_sentence_embeddings(args=args, dataset=dataset, feature='text')
 
+        # randomly shuffle the dataset
+        dataset = dataset.sample(frac=1).reset_index(drop=True)
+
         # split the dataset
-        dataset = utils.split_dataset_nested_cv(dataset=dataset)
+        dataset = utils.split_dataset(dataset=dataset)
 
         # convert to torch tensors
         dataset = prepare_dataset_for_model(dataset=dataset)

@@ -154,7 +154,7 @@ def stem(tokens: list) -> list:
     return [stemmer.stem(word) for word in tokens]
 
 
-def split_dataset_nested_cv(dataset: pd.DataFrame, k: int =5) -> []:
+def split_dataset(dataset: pd.DataFrame, k: int =5, type: str = 'classic_split') -> []:
     """
     A function which splits the dataset into training, testing and validation using something akin to a nested CV
     paradigm
@@ -162,22 +162,34 @@ def split_dataset_nested_cv(dataset: pd.DataFrame, k: int =5) -> []:
     :param k: used to determine the number of nested splits
     :return: dictionary with a split dataset
     """
-    outer_cv = KFold(n_splits=k, shuffle=True, random_state=42)
-    nested_splits = []
+    splits = []
+    if type == 'nested_cv':
+        outer_cv = KFold(n_splits=k)
+        for outer_train_idx, test_idx in outer_cv.split(dataset):
+            train_df, test_df = dataset.iloc[outer_train_idx], dataset.iloc[test_idx]
+            train_df, val_df = train_test_split(train_df, test_size=0.2, stratify=train_df['fake'])
 
-    for outer_train_idx, test_idx in outer_cv.split(dataset):
-        train_df, test_df = dataset.iloc[outer_train_idx], dataset.iloc[test_idx]
-        train_df, val_df = train_test_split(train_df, test_size=0.2, stratify=train_df['fake'])
+            splits.append(
+                {
+                    'training': train_df,
+                    'testing': test_df,
+                    'validating': val_df
+                }
+            )
+    elif type == 'classic_split':
 
-        nested_splits.append(
+        train, test = train_test_split(dataset, test_size=0.2, stratify=dataset['fake'])
+        train, valid = train_test_split(train, test_size=0.2, stratify=train['fake'])
+        splits.append(
             {
-                'training': train_df,
-                'testing': test_df,
-                'validating': val_df
+                'training': train,
+                'testing': test,
+                'validating': valid
             }
         )
 
-    return nested_splits
+    return splits
+
 
 def downsample_dataset(dataset: pd.DataFrame) -> pd.DataFrame:
     """

@@ -3,8 +3,9 @@ dataset:
     positive: "True.csv"
     negative: "Fake.csv"
     embeddings_name: "multi-qa-MiniLM-L6-cos-v1"
-    load_dataset: 1
+    load_dataset: 0
     topic_modeller: 0
 model:
     hidden_size: 128
     input_size: 384
+    load_model: 0
