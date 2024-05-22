@@ -8,42 +8,6 @@ In this project, I have been tasked with building a classification algorithm to 
 
 Data can be downloaded [using this link](https://1drv.ms/f/s!Aht2ewWAV68Z6jVQ4fEESXaI6C8-?e=B2Zicz). Place True.csv and Fake.csv in the /data/raw folder.
 
-The project is setup in the following structure:
-
-```
-fake_news_detection
-│   README.md
-│   requirements.txt
-│
-├── configuration
-├── data
-│   ├── preprocessed
-│   │   └── dataset.pkl
-│   └── raw
-│       ├── Fake.csv
-│       └── True.csv
-├── models
-│   └── model.pt
-├── results
-│   ├── build_evaluate_classifier
-│   │   ├── confusion_matrix.png
-│   │   ├── pr_curve.png
-│   │   └── roc_curve.png
-│   └── exploratory_data_analysis
-│       ├── category_breakdown.png
-│       ├── monthly_distribution_2016.png
-│       ├── monthly_distribution_2017.png
-│       └── summary.png
-├── setup.py
-└── src
-    ├── build_eval_clf.py
-    ├── data_representation.py
-    ├── evaluation.py
-    ├── explore_dataset.py
-    ├── inference.py
-    ├── model.py
-    └── utils.py
-```
 ### Using this repository
 Preface: If I had more time, I would dockerise this solution. 
 
@@ -52,21 +16,9 @@ The user can setup their environment by calling “python3 setup.py”. This wil
 Please activate this environment by calling “source fake_news/bin/activate”.
 
 Then change directory (cd) into “src” and run the following:
-- “python3 explore_dataset.py”: Run EDA analysis.
-- “python3 build_eval_clf.py”: Retrain a classification algorithm.
-- “python3 inference.py”: Run inference mode!
-
-Approximate running times:
-- “python3 setup.py”: 
-  - Approximately 3 mins. 
-- “python3 explore_dataset.py”: 
-  - Approximately 3 minutes without topic modelling.  
-  - Approximately 15 minuets with topic modelling (BERT-based).
-- "python3 build_eval_clf.py”: 
-  - Approximately 1.5 mins with pre-processed dataset. 
-  - Approximately 2-3 mins (down from 15) including pre-processing of sentence embeddings (Transformer-based).
-- “python3 inference.py”: 
-  - Approximately 5-10 seconds to load into memory. Inference time is approximately 70 milliseconds.
+- “python3 src/explore_dataset.py”: Run EDA analysis.
+- “python3 src/build_eval_clf.py”: Retrain a classification algorithm.
+- “python3 app/inference.py”: Run inference mode!
 
 ### Project discussion
 
