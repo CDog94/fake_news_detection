@@ -50,29 +50,48 @@ class FeedForwardClassifier(pl.LightningModule):
         return optim.Adam(self.parameters(), lr=0.001)
 
 
-def train_test_model(args: dict, dataset: dict) -> np.array:
+def train_test_model(args: dict, dataset: list) -> np.array:
     """
     Train and test the model
     :param args: arguments for training/model
     :param dataset: dataset to be usd for training/testing
     :return: predictions from the model
     """
-    model = FeedForwardClassifier(args['model']['input_size'], args['model']['hidden_size'])
+    probabilities = {}
+    for k, fold in enumerate(dataset):
 
-    # Initialize PyTorch Lightning trainer
-    trainer = pl.Trainer(max_epochs=15)
+        # instantiate torch lightning training module
+        trainer = pl.Trainer(max_epochs=15, accelerator=args['device'].type)
+        if args['model']['load_model']:
 
-    # Train the model using the provided data loaders
-    trainer.fit(model, train_dataloaders=dataset['train'], val_dataloaders=dataset['valid'])
+            # Load the model if specified
+            model_path = os.path.join(args['src_dir'], 'models', f'{k}_model.pt')
+            model = FeedForwardClassifier(args['model']['input_size'], args['model']['hidden_size'])
+            model.load_state_dict(torch.load(model_path))
 
-    # Test the trained model using the test data loader
-    trainer.test(model, dataloaders=dataset['test'])
+            # Test the trained model using the test data loader
+            output = trainer.predict(model, dataloaders=fold['test'])
+            probabilities[k] = output
+        else:
+            # Otherwise, initialize a new model
+            model = FeedForwardClassifier(args['model']['input_size'], args['model']['hidden_size'])
 
-    # Save the trained model
-    save_dir = os.path.join(args['src_dir'], 'models', 'model.pt')
-    trainer.save_checkpoint(save_dir)
+            # Train the model using the provided data loaders
+            trainer.fit(model, train_dataloaders=fold['train'], val_dataloaders=fold['valid'])
 
-    # return the predicted probabilities
-    probabilities = trainer.predict(model, dataloaders=dataset['test'])
+            # Test the trained model using the test data loader
+            trainer.test(model, dataloaders=fold['test'])
+
+            # Save the trained model
+            save_dir = os.path.join(args['src_dir'], 'models', f'{k}_model.pt')
+            torch.save(model.state_dict(), save_dir)
+
+            # return the predicted probabilities
+            output = trainer.predict(model, dataloaders=fold['test'])
+            probabilities[k] = output
+
+            # remove from memory
+            del model
 
     return probabilities
+

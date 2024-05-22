@@ -4,11 +4,11 @@ import pandas as pd
 import joblib
 from torch.utils.data import Dataset, DataLoader
 import utils
-from sentence_transformers import SentenceTransformer
 import torch
+from transformers import pipeline
 
 
-def get_dataset(args: dict) -> dict:
+def get_dataset(args: dict) -> list:
     """
     A function which gets the dataset, either loads it or creates it from scratch.
     :param args: a set of arguments pertaining to the dataset
@@ -30,6 +30,8 @@ def get_dataset(args: dict) -> dict:
         # downsample the dataset for now.
         dataset = utils.downsample_dataset(dataset)
 
+        dataset = dataset.sample(2500)
+
         # apply preprocessing functions
         dataset = utils.clean_dataset(dataset=dataset)
 
@@ -37,7 +39,10 @@ def get_dataset(args: dict) -> dict:
         dataset = dataset.drop(columns=['title', 'subject', 'date'])
 
         # get sentence embeddings
-        dataset = get_sentence_embeddings(args=args['dataset'], dataset=dataset, feature='text')
+        dataset = get_sentence_embeddings(args=args, dataset=dataset, feature='text')
+
+        # randomly shuffle the dataset
+        dataset = dataset.sample(frac=1).reset_index(drop=True)
 
         # split the dataset
         dataset = utils.split_dataset(dataset=dataset)
@@ -62,19 +67,38 @@ def get_sentence_embeddings(args: dict, dataset: pd.DataFrame, feature: str) -> 
     sentences = [' '.join(s) for s in dataset[feature].tolist()]
 
     with torch.no_grad():
-        model = SentenceTransformer(args['embeddings_name'])
-        for idx, sentence in enumerate(tqdm(sentences, desc='Generating embeddings')):
-            sentence_embeddings = model.encode(' '.join(sentence))
-            sentences[idx] = sentence_embeddings
+
+        feature_extractor = pipeline(
+            task="feature-extraction",
+            framework="pt",
+            model=args['dataset']['embeddings_name'],
+            device=0,
+        )
+
+        for i, each_sentence in enumerate(tqdm(sentences, desc='Generating sentence embeddings')):
+            emb = feature_extractor(each_sentence, return_tensors="pt")
+            avg_pool = emb[0].numpy().mean(axis=0).tolist()
+            sentences[i] = avg_pool
 
     dataset[feature] = sentences
     return dataset
 
 
-def prepare_dataset_for_model(dataset: dict) -> dict:
+def prepare_dataset_for_model(dataset: list) -> list:
     """
     Prepares a dataset for a Pytorch model
     :param dataset: dictionary of data splits
+    :return: a fully prepared dataset
+    """
+    for k, split in enumerate(dataset):
+        dataset[k] = to_pytorch_dataset(dataset=split)
+    return dataset
+
+
+def to_pytorch_dataset(dataset: dict) -> dict:
+    """
+    Prepare a dataset for a Pytorch model
+    :param dataset: a dictionary of data splits
     :return: a fully prepared dataset
     """
     train, test, valid = dataset['training'], dataset['testing'], dataset['validating']
