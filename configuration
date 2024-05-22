@@ -2,7 +2,7 @@
 dataset:
     positive: "True.csv"
     negative: "Fake.csv"
-    embeddings_name: "multi-qa-MiniLM-L6-cos-v1"
+    embeddings_name: "sentence-transformers/multi-qa-MiniLM-L6-cos-v1"
     load_dataset: 0
     topic_modeller: 0
 model:

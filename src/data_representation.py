@@ -4,8 +4,8 @@ import pandas as pd
 import joblib
 from torch.utils.data import Dataset, DataLoader
 import utils
-from sentence_transformers import SentenceTransformer
 import torch
+from transformers import pipeline
 
 
 def get_dataset(args: dict) -> list:
@@ -29,6 +29,8 @@ def get_dataset(args: dict) -> list:
 
         # downsample the dataset for now.
         dataset = utils.downsample_dataset(dataset)
+
+        dataset = dataset.sample(2500)
 
         # apply preprocessing functions
         dataset = utils.clean_dataset(dataset=dataset)
@@ -65,10 +67,20 @@ def get_sentence_embeddings(args: dict, dataset: pd.DataFrame, feature: str) -> 
     sentences = [' '.join(s) for s in dataset[feature].tolist()]
 
     with torch.no_grad():
-        model = SentenceTransformer(args['dataset']['embeddings_name'], device=args['device'])
-        embeddings = model.encode(sentences, show_progress_bar=True)
 
-    dataset[feature] = embeddings.tolist()
+        feature_extractor = pipeline(
+            task="feature-extraction",
+            framework="pt",
+            model=args['dataset']['embeddings_name'],
+            device=0,
+        )
+
+        for i, each_sentence in enumerate(tqdm(sentences, desc='Generating sentence embeddings')):
+            emb = feature_extractor(each_sentence, return_tensors="pt")
+            avg_pool = emb[0].numpy().mean(axis=0).tolist()
+            sentences[i] = avg_pool
+
+    dataset[feature] = sentences
     return dataset
 
 

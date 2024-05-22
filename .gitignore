@@ -4,3 +4,7 @@
 /.idea
 /.idea
 /src/__pycache__
+*.iml
+*.iml
+*.xml
+*.pyc
